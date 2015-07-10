@@ -1,10 +1,11 @@
 <?php
 
 namespace App\Model;
+
 use PDO;
 
 class Database {
-    public $con;
+    private $con;
 
     public function __construct(){
         $this->connect();

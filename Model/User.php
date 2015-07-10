@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Model;
-use PDO;
 
  class User {
 	 public $username = null;
@@ -19,13 +18,11 @@ use PDO;
         return $this->password;
      }
 
-     private function setName(){
-
+     private function setName($param){
+        $this->username = $param;
      }
 
-     private function setPass(){
-
+     private function setPass($param){
+         $this->password = $param;
      }
  }
-
-?>

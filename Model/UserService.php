@@ -1,11 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Hook
- * Date: 10/07/15
- * Time: 12:29
- */
-
 namespace App\Model;
 
 use PDO;
@@ -20,38 +13,57 @@ class UserService {
     }
 
     public function registerUser($User){
-        $this->User = $User;
-        $this->db = new Database();
-        $sql = "INSERT INTO users(username, password) VALUES(:username, :password)";
+        try {
+            $this->User = $User;
+            $this->db = new Database();
+            $sql_check = "SELECT * FROM users WHERE username = :username";
 
-        $stmt = $this->db->connect()->prepare( $sql );
+            $stmt = $this->db->connect()->prepare($sql_check);
 
-        $stmt->bindValue( "username", $User->username, PDO::PARAM_STR );
-        $stmt->bindValue( "password", hash("sha256", $User->password . $this->salt), PDO::PARAM_STR );
-        $stmt->execute();
-
-        $this->db->disconnect();
-        return true;
+            $stmt->bindValue("username", $User->username, PDO::PARAM_STR);
+            $stmt->execute();
+            $valid = $stmt->fetchColumn();
+            if($valid){
+                $this->db->disconnect();
+                return false;
+            }
+            else {
+                $sql = "INSERT INTO users(username, password) VALUES(:username, :password)";
+                $stmt = $this->db->connect()->prepare($sql);
+                $stmt->bindValue("username", $User->username, PDO::PARAM_STR);
+                $stmt->bindValue("password", hash("sha256", $User->password.$this->salt), PDO::PARAM_STR);
+                $stmt->execute();
+                $this->db->disconnect();
+                return true;
+            }
+        }catch
+            (PDOException $e) {
+                echo $e->getMessage();
+                return false;
+            }
     }
     public function loginUser($User){
+        try {
+            $this->db = new Database();
+            $sql = "SELECT * FROM users WHERE username = :username AND password = :password LIMIT 1";
 
-        $this->db = new Database();
-        $sql = "SELECT * FROM users WHERE username = :username AND password = :password LIMIT 1";
+            $stmt = $this->db->connect()->prepare($sql);
 
-        $stmt = $this->db->connect()->prepare( $sql );
+            $stmt->bindValue("username", $User->username, PDO::PARAM_STR);
+            $stmt->bindValue("password", hash("sha256", $User->password.$this->salt), PDO::PARAM_STR);
+            $stmt->execute();
 
-        $stmt->bindValue( "username", $User->username, PDO::PARAM_STR );
-        $stmt->bindValue( "password", hash("sha256", $User->password . $this->salt), PDO::PARAM_STR );
-        $stmt->execute();
+            $valid = $stmt->fetchColumn();
 
-        $valid = $stmt->fetchColumn();
-
-        if( $valid ) {
-             return true;
-        }
-        else {
-            return false;
-        }
+            if ($valid) {
+                return true;
+            } else {
+                return false;
+            }
+        }   catch (PDOException $e) {
+                echo $e->getMessage();
+                return false;
+            }
     }
 
 }

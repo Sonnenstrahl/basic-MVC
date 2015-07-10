@@ -7,6 +7,7 @@ use App\Model\UserService;
 class Controller {
     public $model;
     public $service;
+
     public function __construct(){
     }
 
@@ -16,17 +17,17 @@ class Controller {
 
     public function invoke()
     {
-
         if (isset($_POST['login'])) {
+            //Create UserService && Get Uname PW
             $this->service = new UserService();
             $this->model = new User($_POST);
 
             if ($this->service->loginUser($this->model)) {
                 //Redirect to CUG section
-                $this->redirect('/login/index.php?cug=true');
+                header("location: view/cug.php");
             } else {
-                //Redirect to login page
-                echo "failure";
+                //Redirect to login page User not found
+                $this->redirect('index.php?login=failed');
             }
         } else if (isset($_GET['register']) && $_GET['register'] === 'true') {
                 require 'View/register.php';
@@ -35,16 +36,23 @@ class Controller {
         } else if (isset($_POST['register'])) {
 
             if ($_POST['password'] == $_POST['conpassword']) {
-                //successfully registered
-
-                //Redirect to CUG
+                //Create UserService && Get Uname PW
                 $this->service = new UserService();
                 $this->model = new User($_POST);
-                $this->service->registerUser($this->model);
 
+                if($this->service->registerUser($this->model)){
+                    //successfully registered
+                    //No Duplicate Found Redirect to CUG
+                    $this->redirect("view/cug.php?user={$_POST['username']}");
+                }
+                else {
+                    //Duplicate found Redirect
+                    $this->redirect("index.php?register=true&user={$_POST['username']}_exists");
+                }
             } else {
-                //Redirect to register form
-                echo "Password and Confirm password not match";
+                //Redirect to register form PW doesn't match
+                //header('Location: /login/index.php?register=true',true,406);
+               $this->redirect("index.php?register=true&matchconflict");
             }
         } else {
             require 'View/login.php';
