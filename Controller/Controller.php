@@ -54,6 +54,7 @@ class Controller {
             } else {
                 //Redirect to register form PW doesn't match
                 //header('Location: /login/index.php?register=true',true,406);
+                //include("index.php?register=true&matchconflict");
                $this->redirect("index.php?register=true&matchconflict");
             }
         } else {
