@@ -24,6 +24,8 @@ class Controller {
 
             if ($this->service->loginUser($this->model)) {
                 //Redirect to CUG section
+                session_start();
+                $_SESSION['username'] = $this->model->getName();
                 header("location: view/cug.php");
             } else {
                 //Redirect to login page User not found
