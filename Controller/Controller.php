@@ -61,6 +61,5 @@ class Controller {
             require 'View/login.php';
         }
     }
-
 }
 ?>
